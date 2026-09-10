@@ -87,12 +87,12 @@ public class UnidadeFranqueada {
 		this.telefone = telefone;
 	}
 
-	public LocalDate getDateInicio() {
+	public LocalDate getDataInicio() {
 		return dateInicio;
 	}
 
-	public void setDateInicio(LocalDate dateInicio) {
-		this.dateInicio = dateInicio;
+	public void setDataInicio(LocalDate dataInicio) {
+		this.dateInicio = dataInicio;
 	}
 
 	public boolean isAtiva() {
