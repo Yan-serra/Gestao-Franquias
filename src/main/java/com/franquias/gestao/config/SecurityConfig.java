@@ -24,7 +24,7 @@ public class SecurityConfig {
         			    .requestMatchers("/usuarios/**", "/perfis/**")
         			        .hasAuthority("ROLE_ADMIN")
 
-        			    .requestMatchers("/produtos/**", "/categorias/**")
+        			    .requestMatchers("/produtos/**", "/categorias/**", "/fornecedores/**")
         			        .hasAnyAuthority("ROLE_ADMIN", "ROLE_GERENTE")
 
         			    .anyRequest().authenticated()
