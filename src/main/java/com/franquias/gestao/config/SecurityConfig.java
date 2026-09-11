@@ -18,8 +18,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.csrf(csrf -> csrf.disable()).sessionManagement(session ->session.sessionCreationPolicy
-        		(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(auth -> auth.requestMatchers("/auth/login")
-        	    .permitAll().requestMatchers("/usuarios/**","/perfis/**").hasAuthority("ROLE_ADMIN").anyRequest().authenticated())
+        		(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(auth -> auth
+        			    .requestMatchers("/auth/login").permitAll()
+
+        			    .requestMatchers("/usuarios/**", "/perfis/**")
+        			        .hasAuthority("ROLE_ADMIN")
+
+        			    .requestMatchers("/produtos/**", "/categorias/**")
+        			        .hasAnyAuthority("ROLE_ADMIN", "ROLE_GERENTE")
+
+        			    .anyRequest().authenticated()
+        			)
         		.addFilterBefore(jwtAuthFilter,UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
