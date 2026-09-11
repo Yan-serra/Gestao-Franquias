@@ -12,7 +12,7 @@ public class Perfil {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private String nome;
+	private String cargo;
 	
 	public Perfil() {
 		
@@ -31,11 +31,11 @@ public class Perfil {
 		this.id = id;
 	}
 
-	public String getNome() {
-		return nome;
+	public String getCargo() {
+		return cargo;
 	}
 
-	public void setNome(String nome) {
-		this.nome = nome;
+	public void setNome(String cargo) {
+		this.cargo = cargo;
 	}
 }

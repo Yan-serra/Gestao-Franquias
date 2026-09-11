@@ -33,7 +33,7 @@ public class AuthController {
             Usuario usuarioBanco = usuarioEncontrado.get();
 
             if (usuarioBanco.getSenha().equals(usuario.getSenha())) {
-                return jwtService.gerarToken(usuarioBanco.getEmail());
+                return jwtService.gerarToken(usuarioBanco.getEmail(),usuarioBanco.getPerfil().getCargo());
             }
         }
 

@@ -1,9 +1,11 @@
 package com.franquias.gestao.config;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -31,15 +33,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             String token = authorization.substring(7);
             String email = jwtService.extrairEmail(token);
+            String cargo = jwtService.extrairPerfil(token);
+            
+            System.out.println("Email do token: " + email);
+            System.out.println("Cargo do Token: " + cargo);
+            System.out.println("AUTORIDADE: Role_" + cargo);
 
-            if (email != null) {
+            if (email != null && cargo != null) {
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                email,null,null
-                        );
+                SimpleGrantedAuthority autoridade =
+                        new SimpleGrantedAuthority("ROLE_" + cargo);
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                UsernamePasswordAuthenticationToken authentication =  new 
+                		UsernamePasswordAuthenticationToken(email,null,Collections.singletonList(autoridade));
+
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authentication);
             }
         }
 

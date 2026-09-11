@@ -20,16 +20,23 @@ public class JwtService {
         return Keys.hmacShaKeyFor(chaveSecreta.getBytes());
     }
 
-    public String gerarToken(String email) {
+    public String gerarToken(String email, String perfil) {
 
         long tempoExpiracao = 1000 * 60 * 60;
 
-        return Jwts.builder().subject(email).issuedAt(new Date()).expiration(new Date(System.currentTimeMillis() 
-                + tempoExpiracao)).signWith(getChave()).compact();
+        return Jwts.builder().subject(email).claim("perfil", perfil).issuedAt(new Date())
+        		.expiration(new Date(System.currentTimeMillis() + tempoExpiracao)).signWith(getChave()).compact();
     }
     
     public String extrairEmail(String token) {
     	return Jwts.parser().verifyWith(getChave()).build().parseSignedClaims(token)
     			.getPayload().getSubject();
     }
+    
+    public String extrairPerfil(String token) {
+    	return Jwts.parser().verifyWith(getChave()).build().parseSignedClaims(token)
+    			.getPayload().get("perfil",String.class); 
+    }
+    
+    
 }

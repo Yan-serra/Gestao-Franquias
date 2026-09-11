@@ -17,22 +17,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-            .csrf(csrf -> csrf.disable())
-
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/login").permitAll()
-                .anyRequest().authenticated()
-            )
-
-            .addFilterBefore(
-                jwtAuthFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
+        http.csrf(csrf -> csrf.disable()).sessionManagement(session ->session.sessionCreationPolicy
+        		(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(auth -> auth.requestMatchers("/auth/login")
+        	    .permitAll().requestMatchers("/usuarios/**","/perfis/**").hasAuthority("ROLE_ADMIN").anyRequest().authenticated())
+        		.addFilterBefore(jwtAuthFilter,UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
