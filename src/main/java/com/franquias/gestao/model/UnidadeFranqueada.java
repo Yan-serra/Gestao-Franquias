@@ -22,7 +22,7 @@ public class UnidadeFranqueada {
 	private String endereco;
 	private String telefone;
 	private LocalDate dateInicio;
-	private boolean ativa;
+	private boolean Ativa;
 
 	@ManyToOne
 	private Franqueadora franqueadora;
@@ -96,11 +96,11 @@ public class UnidadeFranqueada {
 	}
 
 	public boolean isAtiva() {
-		return ativa;
+		return Ativa;
 	}
 
-	public void setAtiva(boolean ativa) {
-		this.ativa = ativa;
+	public void setAtiva(boolean Ativa) {
+		this.Ativa = Ativa;
 	}
 	
 	public  Franqueadora getFranqueadora(){
