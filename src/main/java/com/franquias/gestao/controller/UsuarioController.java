@@ -29,97 +29,83 @@ public class UsuarioController {
 	@Autowired
 	private PerfilRepository perfilRepository;
 
+		// Lista todos os usuários
 	@GetMapping
 	public List<Usuario> listar() {
 		return usuarioRepository.findAll();
 	}
 
+		// Busca o usuário pelo ID
 	@GetMapping("/{id}")
 	public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
-
 		Usuario usuario = usuarioRepository.findById(id).orElse(null);
-
 		if (usuario == null) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
 		}
 
 		return ResponseEntity.ok(usuario);
 	}
 
+		// Verifica se o email já existe
 	@PostMapping
 	public ResponseEntity<?> cadastrar(@RequestBody Usuario usuario) {
-
 		if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
-			return ResponseEntity.badRequest()
-					.body("Já existe um usuário com este e-mail.");
+			return ResponseEntity.badRequest().body("Já existe um usuário com este e-mail");
 		}
 
 		if (usuario.getPerfil() == null || usuario.getPerfil().getId() == null) {
-			return ResponseEntity.badRequest().body("Perfil não informado.");
+			return ResponseEntity.badRequest().body("Perfil não informado");
 		}
 
-		Perfil perfil = perfilRepository
-				.findById(usuario.getPerfil().getId())
-				.orElse(null);
-
+		// Busca o perfil
+		Perfil perfil = perfilRepository.findById(usuario.getPerfil().getId()).orElse(null);
 		if (perfil == null) {
-			return ResponseEntity.badRequest().body("Perfil não encontrado.");
+			return ResponseEntity.badRequest().body("Perfil não encontrado");
 		}
 
 		usuario.setPerfil(perfil);
-
 		Usuario usuarioSalvo = usuarioRepository.save(usuario);
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(usuarioSalvo);
+		return ResponseEntity.status(HttpStatus.CREATED).body("Usuário cadastrado com sucesso. ID: "
+				+ usuarioSalvo.getId());
 	}
 
+		// Busca o usuário
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizar(
-			@PathVariable Long id,
-			@RequestBody Usuario usuario) {
-
+	public ResponseEntity<?> atualizar(@PathVariable Long id,@RequestBody Usuario usuario) {
 		Usuario usuarioExistente = usuarioRepository.findById(id).orElse(null);
-
 		if (usuarioExistente == null) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
 		}
 
+		// Verifica se o email pertence a outro usuário
 		if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()
 				&& !usuarioExistente.getEmail().equals(usuario.getEmail())) {
-
-			return ResponseEntity.badRequest()
-					.body("Este email já está em uso!");
+			return ResponseEntity.badRequest().body("Este email já está em uso");
 		}
 
 		if (usuario.getPerfil() == null || usuario.getPerfil().getId() == null) {
-			return ResponseEntity.badRequest().body("Perfil não informado.");
+			return ResponseEntity.badRequest().body("Perfil não informado");
 		}
 
-		Perfil perfil = perfilRepository
-				.findById(usuario.getPerfil().getId())
-				.orElse(null);
-
+		Perfil perfil = perfilRepository.findById(usuario.getPerfil().getId()).orElse(null);
 		if (perfil == null) {
-			return ResponseEntity.badRequest().body("Perfil não encontrado.");
+			return ResponseEntity.badRequest().body("Perfil não encontrado");
 		}
 
 		usuario.setId(id);
 		usuario.setPerfil(perfil);
-
-		Usuario usuarioAtualizado = usuarioRepository.save(usuario);
-
-		return ResponseEntity.ok(usuarioAtualizado);
+		usuarioRepository.save(usuario);
+		return ResponseEntity.ok("Usuário atualizado com sucesso");
 	}
 
+		// Verifica se o usuário existe
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> excluir(@PathVariable Long id) {
-
 		if (!usuarioRepository.existsById(id)) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
 		}
 
 		usuarioRepository.deleteById(id);
-
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok("Usuário excluído com sucesso");
 	}
 }

@@ -9,68 +9,65 @@ import jakarta.persistence.ManyToOne;
 @Entity
 public class Estoque {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Integer quantidade;
-    private Integer estoqueMinimo;
+	// Identificador do estoque
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    private Produto produto;
+	// Quantidade disponível
+	private Integer quantidade;
 
-    @ManyToOne
-    private UnidadeFranqueada unidade;
+	// Quantidade mínima desejada
+	private Integer estoqueMinimo;
 
-    public Estoque() {
-    }
+	// Produto armazenado
+	@ManyToOne
+	private Produto produto;
 
-    public Estoque(Long id, Integer quantidade, Integer estoqueMinimo,
-                   Produto produto, UnidadeFranqueada unidade) {
+	// Unidade onde o produto está armazenado
+	@ManyToOne
+	private UnidadeFranqueada unidade;
 
-        this.id = id;
-        this.quantidade = quantidade;
-        this.estoqueMinimo = estoqueMinimo;
-        this.produto = produto;
-        this.unidade = unidade;
-    }
+	public Estoque() {
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public Integer getQuantidade() {
-        return quantidade;
-    }
+	public Integer getQuantidade() {
+		return quantidade;
+	}
 
-    public void setQuantidade(Integer quantidade) {
-        this.quantidade = quantidade;
-    }
+	public void setQuantidade(Integer quantidade) {
+		this.quantidade = quantidade;
+	}
 
-    public Integer getEstoqueMinimo() {
-        return estoqueMinimo;
-    }
+	public Integer getEstoqueMinimo() {
+		return estoqueMinimo;
+	}
 
-    public void setEstoqueMinimo(Integer estoqueMinimo) {
-        this.estoqueMinimo = estoqueMinimo;
-    }
+	public void setEstoqueMinimo(Integer estoqueMinimo) {
+		this.estoqueMinimo = estoqueMinimo;
+	}
 
-    public Produto getProduto() {
-        return produto;
-    }
+	public Produto getProduto() {
+		return produto;
+	}
 
-    public void setProduto(Produto produto) {
-        this.produto = produto;
-    }
+	public void setProduto(Produto produto) {
+		this.produto = produto;
+	}
 
-    public UnidadeFranqueada getUnidade() {
-        return unidade;
-    }
+	public UnidadeFranqueada getUnidade() {
+		return unidade;
+	}
 
-    public void setUnidade(UnidadeFranqueada unidade) {
-        this.unidade = unidade;
-    }
+	public void setUnidade(UnidadeFranqueada unidade) {
+		this.unidade = unidade;
+	}
 }

@@ -7,7 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class GestaoFranquiasApplication {
 
 	public static void main(String[] args) {
+		
+		// Inicia a aplicação Spring Boot
 		SpringApplication.run(GestaoFranquiasApplication.class, args);
 	}
-
 }

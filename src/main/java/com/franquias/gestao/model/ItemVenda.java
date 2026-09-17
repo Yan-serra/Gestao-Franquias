@@ -9,65 +9,64 @@ import jakarta.persistence.ManyToOne;
 @Entity
 public class ItemVenda {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Integer quantidade;
-    private Double precoUnitario;
-    private Double subtotal;
+	// Identificador do item
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    private Produto produto;
+	// Quantidade vendida
+	private Integer quantidade;
 
-    public ItemVenda() {
-    }
+	// Preço do produto no momento da venda
+	private Double precoUnitario;
 
-    public ItemVenda(Long id, Integer quantidade, Double precoUnitario,
-                     Double subtotal, Produto produto) {
-        this.id = id;
-        this.quantidade = quantidade;
-        this.precoUnitario = precoUnitario;
-        this.subtotal = subtotal;
-        this.produto = produto;
-    }
+	// Valor total do item
+	private Double subtotal;
 
-    public Long getId() {
-        return id;
-    }
+	// Produto vendido
+	@ManyToOne
+	private Produto produto;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public ItemVenda() {
+	}
 
-    public Integer getQuantidade() {
-        return quantidade;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setQuantidade(Integer quantidade) {
-        this.quantidade = quantidade;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public Double getPrecoUnitario() {
-        return precoUnitario;
-    }
+	public Integer getQuantidade() {
+		return quantidade;
+	}
 
-    public void setPrecoUnitario(Double precoUnitario) {
-        this.precoUnitario = precoUnitario;
-    }
+	public void setQuantidade(Integer quantidade) {
+		this.quantidade = quantidade;
+	}
 
-    public Double getSubtotal() {
-        return subtotal;
-    }
+	public Double getPrecoUnitario() {
+		return precoUnitario;
+	}
 
-    public void setSubtotal(Double subtotal) {
-        this.subtotal = subtotal;
-    }
+	public void setPrecoUnitario(Double precoUnitario) {
+		this.precoUnitario = precoUnitario;
+	}
 
-    public Produto getProduto() {
-        return produto;
-    }
+	public Double getSubtotal() {
+		return subtotal;
+	}
 
-    public void setProduto(Produto produto) {
-        this.produto = produto;
-    }
+	public void setSubtotal(Double subtotal) {
+		this.subtotal = subtotal;
+	}
+
+	public Produto getProduto() {
+		return produto;
+	}
+
+	public void setProduto(Produto produto) {
+		this.produto = produto;
+	}
 }

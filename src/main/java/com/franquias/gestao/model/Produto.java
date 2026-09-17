@@ -8,29 +8,33 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Produto {
-	
+
+	// Identificador do produto
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	// Nome do produto
 	private String nome;
+
+	// Descrição do produto
 	private String descricao;
+
+	// Preço padrão do produto
 	private Double precoBase;
+
+	// Indica se o produto está ativo
 	private Boolean ativo;
-	
+
+	// Liga o produto com uma categoria
 	@ManyToOne
 	private Categoria categoria;
-	
-	public Produto() {
-	}
 
-	public Produto(Long id, String nome, String descricao, Double precoBase, Boolean ativo, Categoria categoria) {
-		super();
-		this.id = id;
-		this.nome = nome;
-		this.descricao = descricao;
-		this.precoBase = precoBase;
-		this.ativo = ativo;
-		this.categoria = categoria;
+	// Liga o produto com um fornecedor
+	@ManyToOne
+	private Fornecedor fornecedor;
+
+	public Produto() {
 	}
 
 	public Long getId() {
@@ -48,7 +52,7 @@ public class Produto {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-
+	
 	public String getDescricao() {
 		return descricao;
 	}
@@ -79,5 +83,14 @@ public class Produto {
 	
 	public void setCategoria(Categoria categoria) {
 		this.categoria = categoria;
+	}
+	
+
+	public Fornecedor getFornecedor() {
+		return fornecedor;
+	}
+
+	public void setFornecedor(Fornecedor fornecedor) {
+		this.fornecedor = fornecedor;
 	}
 }

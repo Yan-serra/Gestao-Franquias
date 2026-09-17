@@ -7,26 +7,22 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Perfil {
-	
+
+	// Identificador do perfil
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	// Cargo ou nível de acesso
 	private String cargo;
-	
+
 	public Perfil() {
-		
 	}
-	
-	public Perfil(Long id, String cargo) {
-		this.id = id;
-		this.cargo = cargo;
-	}
-	
+
 	public Long getId() {
 		return id;
 	}
-	
+
 	public void setId(Long id) {
 		this.id = id;
 	}

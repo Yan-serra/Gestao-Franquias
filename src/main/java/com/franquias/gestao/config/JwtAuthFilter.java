@@ -30,31 +30,34 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			FilterChain filterChain)
 			throws ServletException, IOException {
 
+		// Pega o token enviado no cabeçalho da requisição
 		String authorization = request.getHeader("Authorization");
 
 		if (authorization != null && authorization.startsWith("Bearer ")) {
 
+			// Remove a palavra Bearer e pega somente o token
 			String token = authorization.substring(7);
 
 			try {
 
+				// Pega os dados salvos dentro do token
 				String email = jwtService.extrairEmail(token);
 				String cargo = jwtService.extrairPerfil(token);
 
+				// Cria a permissão do usuário
 				SimpleGrantedAuthority autoridade =
 						new SimpleGrantedAuthority("ROLE_" + cargo);
 
+				// Autentica o usuário na requisição
 				UsernamePasswordAuthenticationToken authentication =
-						new UsernamePasswordAuthenticationToken(
-								email,
-								null,
-								Collections.singletonList(autoridade));
+						new UsernamePasswordAuthenticationToken(email,null,Collections.singletonList(autoridade));
 
-				SecurityContextHolder.getContext()
-						.setAuthentication(authentication);
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			} 
+			
+			catch (Exception e) {
 
-			} catch (Exception e) {
-
+				// Limpa a autenticação caso o token seja inválido
 				SecurityContextHolder.clearContext();
 			}
 		}

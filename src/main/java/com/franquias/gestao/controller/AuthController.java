@@ -19,36 +19,34 @@ public class AuthController {
 
 	@Autowired
 	private UsuarioRepository usuarioRepository;
-
 	@Autowired
 	private JwtService jwtService;
 
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody Usuario usuario) {
 
-		Optional<Usuario> usuarioEncontrado =
-				usuarioRepository.findByEmail(usuario.getEmail());
+		// Busca o usuário pelo email
+		Optional<Usuario> usuarioEncontrado = usuarioRepository.findByEmail(usuario.getEmail());
 
+		// Verifica se o usuário existe
 		if (usuarioEncontrado.isEmpty()) {
-			return ResponseEntity.badRequest()
-					.body("E-mail ou senha inválidos");
+			return ResponseEntity.badRequest().body("E-mail ou senha inválidos");
 		}
 
 		Usuario usuarioBanco = usuarioEncontrado.get();
 
+		// Verifica se a senha está correta
 		if (!usuarioBanco.getSenha().equals(usuario.getSenha())) {
-			return ResponseEntity.badRequest()
-					.body("E-mail ou senha inválidos");
+			return ResponseEntity.badRequest().body("E-mail ou senha inválidos");
 		}
 
+		// Verifica se o usuário está ativo
 		if (!usuarioBanco.getAtivo()) {
-			return ResponseEntity.badRequest()
-					.body("Usuário inativo");
+			return ResponseEntity.badRequest().body("Usuário inativo");
 		}
 
-		String token = jwtService.gerarToken(
-				usuarioBanco.getEmail(),
-				usuarioBanco.getPerfil().getCargo());
+		// Gera o token do usuário
+		String token = jwtService.gerarToken(usuarioBanco.getEmail(),usuarioBanco.getPerfil().getCargo());
 
 		return ResponseEntity.ok(token);
 	}

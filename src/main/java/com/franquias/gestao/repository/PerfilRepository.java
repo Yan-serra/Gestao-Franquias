@@ -6,4 +6,5 @@ import com.franquias.gestao.model.Perfil;
 
 public interface PerfilRepository extends JpaRepository<Perfil, Long> {
 
+	// Usa os métodos padrão do JpaRepository
 }

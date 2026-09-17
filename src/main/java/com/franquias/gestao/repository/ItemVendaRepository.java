@@ -6,4 +6,5 @@ import com.franquias.gestao.model.ItemVenda;
 
 public interface ItemVendaRepository extends JpaRepository<ItemVenda, Long> {
 
+	// Usa os métodos padrão do JpaRepository
 }

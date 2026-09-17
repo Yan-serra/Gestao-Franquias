@@ -18,27 +18,46 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 		http.csrf(csrf -> csrf.disable())
+
+			// Não salva sessão, pois usamos JWT
 			.sessionManagement(session -> session
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
 			.authorizeHttpRequests(auth -> auth
 
-					.requestMatchers("/auth/login")
+					// Login e Swagger podem ser acessados sem token
+					.requestMatchers(
+							"/auth/login",
+							"/swagger-ui/**",
+							"/swagger-ui.html",
+							"/v3/api-docs/**")
 						.permitAll()
 
-					.requestMatchers("/usuarios/**", "/perfis/**")
+					// Somente ADMIN pode acessar usuários e perfis
+					.requestMatchers(
+							"/usuarios/**",
+							"/perfis/**")
 						.hasAuthority("ROLE_ADMIN")
 
+					// ADMIN e GERENTE acessam os módulos principais
 					.requestMatchers(
 							"/produtos/**",
 							"/categorias/**",
 							"/fornecedores/**",
 							"/estoques/**",
-							"/vendas/**")
+							"/vendas/**",
+							"/royalties/**",
+							"/chamados/**",
+							"/responsaveis/**",
+							"/movimentacoes-estoque/**")
 						.hasAnyAuthority("ROLE_ADMIN", "ROLE_GERENTE")
 
+					// Outras rotas precisam estar autenticadas
 					.anyRequest()
 						.authenticated()
 			)
+
+			// Verifica o JWT
 			.addFilterBefore(
 					jwtAuthFilter,
 					UsernamePasswordAuthenticationFilter.class);

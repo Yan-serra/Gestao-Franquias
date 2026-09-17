@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.franquias.gestao.model.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    Optional<Usuario> findByEmail(String email);
+
+	// Busca o usuário pelo email
+	Optional<Usuario> findByEmail(String email);
 }

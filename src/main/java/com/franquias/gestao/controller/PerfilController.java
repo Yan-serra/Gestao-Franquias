@@ -20,58 +20,57 @@ import com.franquias.gestao.repository.PerfilRepository;
 @RestController
 @RequestMapping("/perfis")
 public class PerfilController {
-	
+
 	@Autowired
 	private PerfilRepository perfilRepository;
-	
+
+		// Lista todos os perfis
 	@GetMapping
-	public List<Perfil> listar(){
+	public List<Perfil> listar() {
 		return perfilRepository.findAll();
 	}
-	
+
+		// Busca o perfil pelo ID
 	@GetMapping("/{id}")
 	public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
-		
 		Perfil perfil = perfilRepository.findById(id).orElse(null);
-		
 		if (perfil == null) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Perfil não encontrado");
 		}
-		
+
 		return ResponseEntity.ok(perfil);
 	}
-	
+
+		// Salva o perfil
 	@PostMapping
 	public ResponseEntity<?> cadastrar(@RequestBody Perfil perfil) {
-		
 		Perfil perfilSalvo = perfilRepository.save(perfil);
-		
-		return ResponseEntity.status(HttpStatus.CREATED).body(perfilSalvo);
+		return ResponseEntity.status(HttpStatus.CREATED).body("Perfil cadastrado com sucesso. ID: "
+				+ perfilSalvo.getId());
 	}
-	
+
+		// Atualiza o perfil
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Perfil perfil) {
-		
+	public ResponseEntity<?> atualizar(@PathVariable Long id,@RequestBody Perfil perfil) {
 		Perfil perfilExistente = perfilRepository.findById(id).orElse(null);
-		
 		if (perfilExistente == null) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Perfil não encontrado");
 		}
-		
+
 		perfil.setId(id);
-		
-		return ResponseEntity.ok(perfilRepository.save(perfil));
+		perfilRepository.save(perfil);
+		return ResponseEntity.ok("Perfil atualizado com sucesso");
 	}
-	
+
+		// Verifica se o perfil existe
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> excluir(@PathVariable Long id) {
-		
 		if (!perfilRepository.existsById(id)) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Perfil não encontrado");
 		}
-		
+
+		// Exclui o perfil
 		perfilRepository.deleteById(id);
-		
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok("Perfil excluído com sucesso");
 	}
 }

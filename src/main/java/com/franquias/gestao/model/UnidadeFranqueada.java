@@ -10,31 +10,47 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 public class UnidadeFranqueada {
-	
+
+	// Identificador da unidade
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	
 	private Long id;
+
+	// Nome da unidade
 	private String nome;
+
+	// CNPJ da unidade
 	private String cnpj;
+
+	// Cidade da unidade
 	private String cidade;
+
+	// Estado da unidade
 	private String estado;
+
+	// Endereço da unidade
 	private String endereco;
+
+	// Telefone da unidade
 	private String telefone;
+
+	// Data de início da unidade
 	private LocalDate dataInicio;
+
+	// Indica se a unidade está ativa
 	private boolean ativa;
 
+	// Liga a unidade com uma franqueadora
 	@ManyToOne
 	private Franqueadora franqueadora;
-	
+
 	public UnidadeFranqueada() {
-		
 	}
-	
-	public Long getId(){
+
+	public Long getId() {
 		return id;
 	}
-	
+
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -102,11 +118,11 @@ public class UnidadeFranqueada {
 	public void setAtiva(boolean ativa) {
 		this.ativa = ativa;
 	}
-	
-	public Franqueadora getFranqueadora(){
+
+	public Franqueadora getFranqueadora() {
 		return franqueadora;
 	}
-	
+
 	public void setFranqueadora(Franqueadora franqueadora) {
 		this.franqueadora = franqueadora;
 	}

@@ -9,7 +9,7 @@ import com.franquias.gestao.model.Estoque;
 
 public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
 
+	// Busca estoques abaixo da quantidade mínima
 	@Query("SELECT e FROM Estoque e WHERE e.quantidade < e.estoqueMinimo")
 	List<Estoque> buscarEstoqueAbaixoDoMinimo();
-
 }

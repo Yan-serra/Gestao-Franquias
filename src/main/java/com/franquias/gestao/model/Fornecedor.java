@@ -7,27 +7,28 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Fornecedor {
-	
+
+	// Identificador do fornecedor
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String nome;
-	private String cnpj;
-	private String telefone;
-	private String email;
-	private Boolean ativo;
-	
-	public Fornecedor() {
-	}
 
-	public Fornecedor(Long id, String nome, String cnpj, String telefone, String email, Boolean ativo) {
-		super();
-		this.id = id;
-		this.nome = nome;
-		this.cnpj = cnpj;
-		this.telefone = telefone;
-		this.email = email;
-		this.ativo = ativo;
+	// Nome do fornecedor
+	private String nome;
+
+	// CNPJ do fornecedor
+	private String cnpj;
+
+	// Telefone para contato
+	private String telefone;
+
+	// Email para contato
+	private String email;
+
+	// Indica se o fornecedor está ativo
+	private Boolean ativo;
+
+	public Fornecedor() {
 	}
 
 	public Long getId() {
@@ -61,7 +62,7 @@ public class Fornecedor {
 	public void setTelefone(String telefone) {
 		this.telefone = telefone;
 	}
-
+	
 	public String getEmail() {
 		return email;
 	}
