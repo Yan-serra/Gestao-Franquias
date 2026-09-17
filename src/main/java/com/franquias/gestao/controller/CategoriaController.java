@@ -3,6 +3,7 @@ package com.franquias.gestao.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,14 +23,21 @@ public class CategoriaController {
 	@Autowired
 	private CategoriaRepository categoriaRepository;
 	
-	@GetMapping()
+	@GetMapping
 	public List<Categoria> listar(){
 		return categoriaRepository.findAll();
 	}
 	
 	@GetMapping("/{id}")
-	public Categoria buscarPorId(@PathVariable Long id) {
-	    return categoriaRepository.findById(id).orElse(null);
+	public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+		
+		Categoria categoria = categoriaRepository.findById(id).orElse(null);
+		
+		if (categoria == null) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		return ResponseEntity.ok(categoria);
 	}
 	
 	@PostMapping
@@ -38,13 +46,28 @@ public class CategoriaController {
 	}
 	
 	@PutMapping("/{id}")
-	public Categoria atualizar(@PathVariable Long id, @RequestBody Categoria categoria) {
+	public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Categoria categoria) {
+		
+		Categoria categoriaExistente = categoriaRepository.findById(id).orElse(null);
+		
+		if (categoriaExistente == null) {
+			return ResponseEntity.notFound().build();
+		}
+		
 		categoria.setId(id);
-		return categoriaRepository.save(categoria);
+		
+		return ResponseEntity.ok(categoriaRepository.save(categoria));
 	}
 	
 	@DeleteMapping("/{id}")
-	public void excluir(@PathVariable Long id) {
+	public ResponseEntity<?> excluir(@PathVariable Long id) {
+		
+		if (!categoriaRepository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+		
 		categoriaRepository.deleteById(id);
+		
+		return ResponseEntity.ok().build();
 	}
 }

@@ -3,6 +3,7 @@ package com.franquias.gestao.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ public class ProdutoController {
 	
 	@Autowired
 	private ProdutoRepository produtoRepository;
+	
 	@Autowired
 	private CategoriaRepository categoriaRepository;
 	
@@ -32,25 +34,85 @@ public class ProdutoController {
 	}
 	
 	@GetMapping("/{id}")
-	public Produto buscarPorId(@PathVariable Long id) {
-		return produtoRepository.findById(id).orElse(null);
+	public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+		
+		Produto produto = produtoRepository.findById(id).orElse(null);
+		
+		if (produto == null) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		return ResponseEntity.ok(produto);
+	}
+	
+	@GetMapping("/categoria/{categoriaId}")
+	public List<Produto> buscarPorCategoria(@PathVariable Long categoriaId) {
+
+		return produtoRepository.findByCategoriaId(categoriaId);
+	}
+
+	@GetMapping("/status/{ativo}")
+	public List<Produto> buscarPorStatus(@PathVariable Boolean ativo) {
+
+		return produtoRepository.findByAtivo(ativo);
 	}
 	
 	@PostMapping
-	public Produto cadastrar(@RequestBody Produto produto) {
-		Categoria categoria = categoriaRepository.findById(produto.getCategoria().getId()).orElse(null);
+	public ResponseEntity<?> cadastrar(@RequestBody Produto produto) {
+		
+		if (produto.getCategoria() == null || produto.getCategoria().getId() == null) {
+			return ResponseEntity.badRequest().body("Categoria não informada");
+		}
+		
+		Categoria categoria = categoriaRepository
+				.findById(produto.getCategoria().getId())
+				.orElse(null);
+		
+		if (categoria == null) {
+			return ResponseEntity.badRequest().body("Categoria não encontrada");
+		}
+		
 		produto.setCategoria(categoria);
-		return produtoRepository.save(produto);
+		
+		return ResponseEntity.ok(produtoRepository.save(produto));
 	}
 	
 	@PutMapping("/{id}")
-	public Produto atualizar(@PathVariable Long id, @RequestBody Produto produto) {
+	public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Produto produto) {
+		
+		Produto produtoExistente = produtoRepository.findById(id).orElse(null);
+		
+		if (produtoExistente == null) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		if (produto.getCategoria() == null || produto.getCategoria().getId() == null) {
+			return ResponseEntity.badRequest().body("Categoria não informada");
+		}
+		
+		Categoria categoria = categoriaRepository
+				.findById(produto.getCategoria().getId())
+				.orElse(null);
+		
+		if (categoria == null) {
+			return ResponseEntity.badRequest().body("Categoria não encontrada");
+		}
+		
 		produto.setId(id);
-		return produtoRepository.save(produto);
+		produto.setCategoria(categoria);
+		
+		return ResponseEntity.ok(produtoRepository.save(produto));
 	}
 	
 	@DeleteMapping("/{id}")
-	public void excluir(@PathVariable Long id) {
+	public ResponseEntity<?> excluir(@PathVariable Long id) {
+		
+		if (!produtoRepository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+		
 		produtoRepository.deleteById(id);
+		
+		return ResponseEntity.ok().build();
 	}
 }

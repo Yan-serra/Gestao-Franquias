@@ -18,9 +18,9 @@ public class Perfil {
 		
 	}
 	
-	public Perfil(Long id, String nome) {
+	public Perfil(Long id, String cargo) {
 		this.id = id;
-		this.setNome(nome);
+		this.cargo = cargo;
 	}
 	
 	public Long getId() {
@@ -35,7 +35,7 @@ public class Perfil {
 		return cargo;
 	}
 
-	public void setNome(String cargo) {
+	public void setCargo(String cargo) {
 		this.cargo = cargo;
 	}
 }

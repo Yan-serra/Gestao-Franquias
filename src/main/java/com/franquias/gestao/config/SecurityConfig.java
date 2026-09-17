@@ -11,26 +11,38 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthFilter jwtAuthFilter;
+	@Autowired
+	private JwtAuthFilter jwtAuthFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.csrf(csrf -> csrf.disable()).sessionManagement(session ->session.sessionCreationPolicy
-        		(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(auth -> auth
-        			    .requestMatchers("/auth/login").permitAll()
+		http.csrf(csrf -> csrf.disable())
+			.sessionManagement(session -> session
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.authorizeHttpRequests(auth -> auth
 
-        			    .requestMatchers("/usuarios/**", "/perfis/**")
-        			        .hasAuthority("ROLE_ADMIN")
+					.requestMatchers("/auth/login")
+						.permitAll()
 
-        			    .requestMatchers("/produtos/**", "/categorias/**", "/fornecedores/**", "/estoques/**")
-        			        .hasAnyAuthority("ROLE_ADMIN", "ROLE_GERENTE")
+					.requestMatchers("/usuarios/**", "/perfis/**")
+						.hasAuthority("ROLE_ADMIN")
 
-        			    .anyRequest().authenticated()
-        			)
-        		.addFilterBefore(jwtAuthFilter,UsernamePasswordAuthenticationFilter.class);
+					.requestMatchers(
+							"/produtos/**",
+							"/categorias/**",
+							"/fornecedores/**",
+							"/estoques/**",
+							"/vendas/**")
+						.hasAnyAuthority("ROLE_ADMIN", "ROLE_GERENTE")
 
-        return http.build();
-    }
+					.anyRequest()
+						.authenticated()
+			)
+			.addFilterBefore(
+					jwtAuthFilter,
+					UsernamePasswordAuthenticationFilter.class);
+
+		return http.build();
+	}
 }

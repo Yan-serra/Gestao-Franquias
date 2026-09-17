@@ -24,90 +24,142 @@ import com.franquias.gestao.repository.UnidadeFranqueadaRepository;
 @RequestMapping("/estoques")
 public class EstoqueController {
 
-    @Autowired
-    private EstoqueRepository estoqueRepository;
-    
-    @Autowired
-    private ProdutoRepository produtoRepository;
+	@Autowired
+	private EstoqueRepository estoqueRepository;
+	
+	@Autowired
+	private ProdutoRepository produtoRepository;
 
-    @Autowired
-    private UnidadeFranqueadaRepository unidadeFranqueadaRepository;
+	@Autowired
+	private UnidadeFranqueadaRepository unidadeFranqueadaRepository;
 
-    @GetMapping
-    public List<Estoque> listar() {
-        return estoqueRepository.findAll();
-    }
+	@GetMapping
+	public List<Estoque> listar() {
+		return estoqueRepository.findAll();
+	}
 
-    @GetMapping("/{id}")
-    public Estoque buscarPorId(@PathVariable Long id) {
-        return estoqueRepository.findById(id).orElse(null);
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
 
-    @PostMapping
-    public Estoque cadastrar(@RequestBody Estoque estoque) {
+		Estoque estoque = estoqueRepository.findById(id).orElse(null);
 
-        Produto produto = produtoRepository
-                .findById(estoque.getProduto().getId())
-                .orElse(null);
+		if (estoque == null) {
+			return ResponseEntity.notFound().build();
+		}
 
-        UnidadeFranqueada unidade = unidadeFranqueadaRepository
-                .findById(estoque.getUnidade().getId())
-                .orElse(null);
+		return ResponseEntity.ok(estoque);
+	}
 
-        estoque.setProduto(produto);
-        estoque.setUnidade(unidade);
+	@GetMapping("/abaixo-minimo")
+	public List<Estoque> listarAbaixoDoMinimo() {
 
-        return estoqueRepository.save(estoque);
-    }
+		return estoqueRepository.buscarEstoqueAbaixoDoMinimo();
+	}
+	
+	@PostMapping
+	public ResponseEntity<?> cadastrar(@RequestBody Estoque estoque) {
 
-    @PutMapping("/{id}")
-    public Estoque atualizar(@PathVariable Long id, @RequestBody Estoque estoque) {
+		if (estoque.getProduto() == null || estoque.getProduto().getId() == null) {
+			return ResponseEntity.badRequest().body("Produto não informado");
+		}
 
-        if (estoque.getQuantidade() < 0) {
-            throw new RuntimeException("O estoque não pode ficar negativo");
-        }
+		if (estoque.getUnidade() == null || estoque.getUnidade().getId() == null) {
+			return ResponseEntity.badRequest().body("Unidade não informada");
+		}
 
-        estoque.setId(id);
+		if (estoque.getQuantidade() < 0) {
+			return ResponseEntity.badRequest().body("O estoque não pode ficar negativo");
+		}
 
-        return estoqueRepository.save(estoque);
-    }
+		Produto produto = produtoRepository
+				.findById(estoque.getProduto().getId())
+				.orElse(null);
 
-    @PutMapping("/{id}/entrada/{quantidade}")
-    public Estoque entrada(@PathVariable Long id, @PathVariable Integer quantidade) {
+		if (produto == null) {
+			return ResponseEntity.badRequest().body("Produto não encontrado");
+		}
 
-        Estoque estoque = estoqueRepository.findById(id).orElse(null);
+		UnidadeFranqueada unidade = unidadeFranqueadaRepository
+				.findById(estoque.getUnidade().getId())
+				.orElse(null);
 
-        if (estoque == null) {
-            return null;
-        }
+		if (unidade == null) {
+			return ResponseEntity.badRequest().body("Unidade não encontrada");
+		}
 
-        estoque.setQuantidade(estoque.getQuantidade() + quantidade);
+		estoque.setProduto(produto);
+		estoque.setUnidade(unidade);
 
-        return estoqueRepository.save(estoque);
-    }
+		return ResponseEntity.ok(estoqueRepository.save(estoque));
+	}
 
-    @PutMapping("/{id}/saida/{quantidade}")
-    public ResponseEntity<?> saida(@PathVariable Long id, @PathVariable Integer quantidade) {
+	@PutMapping("/{id}")
+	public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Estoque estoque) {
 
-        Estoque estoque = estoqueRepository.findById(id).orElse(null);
+		Estoque estoqueExistente = estoqueRepository.findById(id).orElse(null);
 
-        if (estoque == null) {
-            return ResponseEntity.notFound().build();
-        }
+		if (estoqueExistente == null) {
+			return ResponseEntity.notFound().build();
+		}
 
-        if (estoque.getQuantidade() - quantidade < 0) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Estoque insuficiente");
-        }
+		if (estoque.getQuantidade() < 0) {
+			return ResponseEntity.badRequest().body("O estoque não pode ficar negativo");
+		}
 
-        estoque.setQuantidade(estoque.getQuantidade() - quantidade);
+		estoque.setId(id);
 
-        return ResponseEntity.ok(estoqueRepository.save(estoque));
-    }
-    
-    @DeleteMapping("/{id}")
-    public void excluir(@PathVariable Long id) {
-        estoqueRepository.deleteById(id);
-    }
+		return ResponseEntity.ok(estoqueRepository.save(estoque));
+	}
+
+	@PutMapping("/{id}/entrada/{quantidade}")
+	public ResponseEntity<?> entrada(@PathVariable Long id, @PathVariable Integer quantidade) {
+
+		Estoque estoque = estoqueRepository.findById(id).orElse(null);
+
+		if (estoque == null) {
+			return ResponseEntity.notFound().build();
+		}
+
+		if (quantidade <= 0) {
+			return ResponseEntity.badRequest().body("A quantidade deve ser maior que zero");
+		}
+
+		estoque.setQuantidade(estoque.getQuantidade() + quantidade);
+
+		return ResponseEntity.ok(estoqueRepository.save(estoque));
+	}
+
+	@PutMapping("/{id}/saida/{quantidade}")
+	public ResponseEntity<?> saida(@PathVariable Long id, @PathVariable Integer quantidade) {
+
+		Estoque estoque = estoqueRepository.findById(id).orElse(null);
+
+		if (estoque == null) {
+			return ResponseEntity.notFound().build();
+		}
+
+		if (quantidade <= 0) {
+			return ResponseEntity.badRequest().body("A quantidade deve ser maior que zero");
+		}
+
+		if (estoque.getQuantidade() - quantidade < 0) {
+			return ResponseEntity.badRequest().body("Estoque insuficiente");
+		}
+
+		estoque.setQuantidade(estoque.getQuantidade() - quantidade);
+
+		return ResponseEntity.ok(estoqueRepository.save(estoque));
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> excluir(@PathVariable Long id) {
+
+		if (!estoqueRepository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+
+		estoqueRepository.deleteById(id);
+
+		return ResponseEntity.ok().build();
+	}
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.franquias.gestao.model.Franqueadora;
@@ -31,66 +32,112 @@ public class UnidadeFranqueadaController {
 		
 	@PostMapping("/{franqueadoraId}")
 	public ResponseEntity<Object> cadastrar(
-	@PathVariable Long franqueadoraId,
-	@RequestBody UnidadeFranqueada unidade) {
-		if(unidadeRepository.findByCnpj(unidade.getCnpj()).isPresent()){
+			@PathVariable Long franqueadoraId,
+			@RequestBody UnidadeFranqueada unidade) {
+		
+		if (unidadeRepository.findByCnpj(unidade.getCnpj()).isPresent()) {
 			return ResponseEntity.status(HttpStatus.CONFLICT)
-					.body("Já existe um unidade com esse CNPJ!");
+					.body("Já existe uma unidade com esse CNPJ!");
 		}
 		
-		if(franqueadoraRepository.findById(franqueadoraId).isPresent()) {
-			Franqueadora franqueadora = franqueadoraRepository.findById(franqueadoraId).get();
-			unidade.setFranqueadora(franqueadora);
-			unidade.setAtiva(true);
-			UnidadeFranqueada unidadeSalva = unidadeRepository.save(unidade);
-			return ResponseEntity.status(HttpStatus.CREATED).body(unidadeSalva);
+		Franqueadora franqueadora = franqueadoraRepository
+				.findById(franqueadoraId)
+				.orElse(null);
+		
+		if (franqueadora == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body("Franqueadora não encontrada.");
 		}
-		return ResponseEntity.status(HttpStatus.NOT_FOUND)
-				.body("Franqueadora não encontrada.");
+		
+		unidade.setFranqueadora(franqueadora);
+		unidade.setAtiva(true);
+		
+		UnidadeFranqueada unidadeSalva = unidadeRepository.save(unidade);
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(unidadeSalva);
 	}
 	
 	@GetMapping
-	public List<UnidadeFranqueada> listar(){
+	public List<UnidadeFranqueada> listar() {
 		return unidadeRepository.findAll();
 	}
 	
 	@GetMapping("/{id}")
-	public UnidadeFranqueada buscarporId(@PathVariable Long id) {
-		if(unidadeRepository.findById(id).isPresent()) {
-			return unidadeRepository.findById(id).get();
+	public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+		
+		UnidadeFranqueada unidade = unidadeRepository.findById(id).orElse(null);
+		
+		if (unidade == null) {
+			return ResponseEntity.notFound().build();
 		}
-		return null;
+		
+		return ResponseEntity.ok(unidade);
+	}
+	
+	@GetMapping("/nome/{nome}")
+	public List<UnidadeFranqueada> buscarPorNome(@PathVariable String nome) {
+		
+		return unidadeRepository.findByNomeContainingIgnoreCase(nome);
+	}
+	
+	@GetMapping("/cidade/{cidade}")
+	public List<UnidadeFranqueada> buscarPorCidade(@PathVariable String cidade) {
+		
+		return unidadeRepository.findByCidadeContainingIgnoreCase(cidade);
+	}
+	
+	@GetMapping("/cnpj")
+	public ResponseEntity<?> buscarPorCnpj(@RequestParam String cnpj) {
+		
+		UnidadeFranqueada unidade = unidadeRepository.findByCnpj(cnpj).orElse(null);
+		
+		if (unidade == null) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		return ResponseEntity.ok(unidade);
+	}
+	
+	@GetMapping("/status/{ativa}")
+	public List<UnidadeFranqueada> buscarPorStatus(@PathVariable Boolean ativa) {
+		
+		return unidadeRepository.findByAtiva(ativa);
 	}
 	
 	@PutMapping("/{id}")
-	public UnidadeFranqueada atualizar(
+	public ResponseEntity<?> atualizar(
 			@PathVariable Long id,
 			@RequestBody UnidadeFranqueada dados) {
-		if(unidadeRepository.findById(id).isPresent()) {
-			
-			UnidadeFranqueada unidade = unidadeRepository.findById(id).get();
-			
-			unidade.setNome(dados.getNome());
-			unidade.setCnpj(dados.getCnpj());
-			unidade.setCidade(dados.getCidade());
-			unidade.setEstado(dados.getEstado());
-			unidade.setEndereco(dados.getEndereco());
-			unidade.setTelefone(dados.getTelefone());
-			unidade.setDataInicio(dados.getDataInicio());
-			unidade.setAtiva(dados.isAtiva());
-			
-			return unidadeRepository.save(unidade);
+		
+		UnidadeFranqueada unidade = unidadeRepository.findById(id).orElse(null);
+		
+		if (unidade == null) {
+			return ResponseEntity.notFound().build();
 		}
-		return null;
+		
+		unidade.setNome(dados.getNome());
+		unidade.setCnpj(dados.getCnpj());
+		unidade.setCidade(dados.getCidade());
+		unidade.setEstado(dados.getEstado());
+		unidade.setEndereco(dados.getEndereco());
+		unidade.setTelefone(dados.getTelefone());
+		unidade.setDataInicio(dados.getDataInicio());
+		unidade.setAtiva(dados.isAtiva());
+		
+		return ResponseEntity.ok(unidadeRepository.save(unidade));
 	}
 	
 	@DeleteMapping("/{id}")
-	public UnidadeFranqueada inativar(@PathVariable Long id) {
-		if(unidadeRepository.findById(id).isPresent()) {
-			UnidadeFranqueada unidade = unidadeRepository.findById(id).get();
-			unidade.setAtiva(false);
-			return unidadeRepository.save(unidade);
+	public ResponseEntity<?> inativar(@PathVariable Long id) {
+		
+		UnidadeFranqueada unidade = unidadeRepository.findById(id).orElse(null);
+		
+		if (unidade == null) {
+			return ResponseEntity.notFound().build();
 		}
-		return null;
+		
+		unidade.setAtiva(false);
+		
+		return ResponseEntity.ok(unidadeRepository.save(unidade));
 	}
 }

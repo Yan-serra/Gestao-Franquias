@@ -20,38 +20,45 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtService jwtService;
+	@Autowired
+	private JwtService jwtService;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,HttpServletResponse response,
-    		FilterChain filterChain)throws ServletException, IOException {
+	@Override
+	protected void doFilterInternal(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			FilterChain filterChain)
+			throws ServletException, IOException {
 
-        String authorization = request.getHeader("Authorization");
+		String authorization = request.getHeader("Authorization");
 
-        if (authorization != null && authorization.startsWith("Bearer ")) {
+		if (authorization != null && authorization.startsWith("Bearer ")) {
 
-            String token = authorization.substring(7);
-            String email = jwtService.extrairEmail(token);
-            String cargo = jwtService.extrairPerfil(token);
-            
-            System.out.println("Email do token: " + email);
-            System.out.println("Cargo do Token: " + cargo);
-            System.out.println("AUTORIDADE: Role_" + cargo);
+			String token = authorization.substring(7);
 
-            if (email != null && cargo != null) {
+			try {
 
-                SimpleGrantedAuthority autoridade =
-                        new SimpleGrantedAuthority("ROLE_" + cargo);
+				String email = jwtService.extrairEmail(token);
+				String cargo = jwtService.extrairPerfil(token);
 
-                UsernamePasswordAuthenticationToken authentication =  new 
-                		UsernamePasswordAuthenticationToken(email,null,Collections.singletonList(autoridade));
+				SimpleGrantedAuthority autoridade =
+						new SimpleGrantedAuthority("ROLE_" + cargo);
 
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
-            }
-        }
+				UsernamePasswordAuthenticationToken authentication =
+						new UsernamePasswordAuthenticationToken(
+								email,
+								null,
+								Collections.singletonList(autoridade));
 
-        filterChain.doFilter(request, response);
-    }
+				SecurityContextHolder.getContext()
+						.setAuthentication(authentication);
+
+			} catch (Exception e) {
+
+				SecurityContextHolder.clearContext();
+			}
+		}
+
+		filterChain.doFilter(request, response);
+	}
 }

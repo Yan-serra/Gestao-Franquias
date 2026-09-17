@@ -1,6 +1,7 @@
 package com.franquias.gestao.controller;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.franquias.gestao.model.Estoque;
@@ -26,78 +28,181 @@ import com.franquias.gestao.repository.VendaRepository;
 @RequestMapping("/vendas")
 public class VendaController {
 
-    @Autowired
-    private VendaRepository vendaRepository;
-    @Autowired
-    private ProdutoRepository produtoRepository;
-    @Autowired
-    private EstoqueRepository estoqueRepository;
-    @Autowired
-    private UnidadeFranqueadaRepository unidadeFranqueadaRepository;
+	@Autowired
+	private VendaRepository vendaRepository;
+	
+	@Autowired
+	private ProdutoRepository produtoRepository;
+	
+	@Autowired
+	private EstoqueRepository estoqueRepository;
+	
+	@Autowired
+	private UnidadeFranqueadaRepository unidadeFranqueadaRepository;
 
-    @GetMapping
-    public List<Venda> listar() {
-        return vendaRepository.findAll();
-    }
+	@GetMapping
+	public List<Venda> listar() {
+		return vendaRepository.findAll();
+	}
 
-    @GetMapping("/{id}")
-    public Venda buscarPorId(@PathVariable Long id) {
-        return vendaRepository.findById(id).orElse(null);
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
 
-    @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody Venda venda) {
+		Venda venda = vendaRepository.findById(id).orElse(null);
 
-        if (venda.getItens() == null || venda.getItens().isEmpty()) {
-            return ResponseEntity.badRequest().body("A venda deve possuir pelo menos um item");
-        }
-        
-        UnidadeFranqueada unidade = unidadeFranqueadaRepository.findById(venda.getUnidade().getId()).orElse(null);
+		if (venda == null) {
+			return ResponseEntity.notFound().build();
+		}
 
-        if (unidade == null) {
-            return ResponseEntity.badRequest().body("Unidade não encontrada");
-        }
+		return ResponseEntity.ok(venda);
+	}
 
-        if (!unidade.isAtiva()) {
-            return ResponseEntity.badRequest().body("Não é possível realizar venda em uma unidade inativa");
-        }
+	@GetMapping("/unidade/{unidadeId}")
+	public List<Venda> buscarPorUnidade(@PathVariable Long unidadeId) {
 
-        venda.setUnidade(unidade);
+		return vendaRepository.findByUnidadeId(unidadeId);
+	}
+	
+	@GetMapping("/unidade/{unidadeId}/faturamento")
+	public ResponseEntity<?> calcularFaturamento(
+			@PathVariable Long unidadeId,
+			@RequestParam String inicio,
+			@RequestParam String fim) {
 
-        double valorTotal = 0.0;
-        for (ItemVenda item : venda.getItens()) {
-            Produto produto = produtoRepository.findById(item.getProduto().getId()).orElse(null);
+		LocalDateTime dataInicio = LocalDateTime.parse(inicio);
+		LocalDateTime dataFim = LocalDateTime.parse(fim);
 
-            if (produto == null) {
-                return ResponseEntity.badRequest().body("Produto não encontrado");
-            }
+		List<Venda> vendas = vendaRepository.findByUnidadeIdAndDataVendaBetween(
+				unidadeId,
+				dataInicio,
+				dataFim);
 
-            Estoque estoque = estoqueRepository.findAll().stream()
-                    .filter(e -> e.getProduto().getId().equals(produto.getId()))
-                    .filter(e -> e.getUnidade().getId().equals(venda.getUnidade().getId()))
-                    .findFirst().orElse(null);
+		double faturamento = 0.0;
 
-            if (estoque == null) {
-                return ResponseEntity.badRequest().body("Estoque não encontrado para este produto e unidade");
-            }
+		for (Venda venda : vendas) {
+			faturamento += venda.getValorTotal();
+		}
 
-            if (estoque.getQuantidade() < item.getQuantidade()) {
-                return ResponseEntity.badRequest().body("Estoque insuficiente para o produto: " + produto.getNome());
-            }
+		return ResponseEntity.ok(faturamento);
+	}
 
-            item.setProduto(produto);
-            item.setPrecoUnitario(produto.getPrecoBase());
+	@GetMapping("/periodo")
+	public List<Venda> buscarPorPeriodo(
+			@RequestParam String inicio,
+			@RequestParam String fim) {
 
-            double subtotal = item.getQuantidade() * produto.getPrecoBase();
-            item.setSubtotal(subtotal);valorTotal += subtotal;
+		LocalDateTime dataInicio = LocalDateTime.parse(inicio);
+		LocalDateTime dataFim = LocalDateTime.parse(fim);
 
-            estoque.setQuantidade(estoque.getQuantidade() - item.getQuantidade());
-            estoqueRepository.save(estoque);
-        }
+		return vendaRepository.findByDataVendaBetween(dataInicio, dataFim);
+	}
 
-        venda.setValorTotal(valorTotal);
-        venda.setDataVenda(LocalDateTime.now());
+	@GetMapping("/unidade/{unidadeId}/periodo")
+	public List<Venda> buscarPorUnidadeEPeriodo(
+			@PathVariable Long unidadeId,
+			@RequestParam String inicio,
+			@RequestParam String fim) {
 
-        return ResponseEntity.ok(vendaRepository.save(venda));
-    }
+		LocalDateTime dataInicio = LocalDateTime.parse(inicio);
+		LocalDateTime dataFim = LocalDateTime.parse(fim);
+
+		return vendaRepository.findByUnidadeIdAndDataVendaBetween(
+				unidadeId,
+				dataInicio,
+				dataFim);
+	}
+
+	@PostMapping
+	public ResponseEntity<?> cadastrar(@RequestBody Venda venda) {
+
+		if (venda.getItens() == null || venda.getItens().isEmpty()) {
+			return ResponseEntity.badRequest()
+					.body("A venda deve possuir pelo menos um item");
+		}
+
+		if (venda.getUnidade() == null || venda.getUnidade().getId() == null) {
+			return ResponseEntity.badRequest()
+					.body("Unidade não informada");
+		}
+
+		UnidadeFranqueada unidade = unidadeFranqueadaRepository
+				.findById(venda.getUnidade().getId())
+				.orElse(null);
+
+		if (unidade == null) {
+			return ResponseEntity.badRequest()
+					.body("Unidade não encontrada");
+		}
+
+		if (!unidade.isAtiva()) {
+			return ResponseEntity.badRequest()
+					.body("Não é possível realizar venda em uma unidade inativa");
+		}
+
+		venda.setUnidade(unidade);
+
+		double valorTotal = 0.0;
+
+		List<Estoque> estoquesAlterados = new ArrayList<>();
+
+		for (ItemVenda item : venda.getItens()) {
+
+			if (item.getProduto() == null || item.getProduto().getId() == null) {
+				return ResponseEntity.badRequest()
+						.body("Produto não informado");
+			}
+
+			if (item.getQuantidade() == null || item.getQuantidade() <= 0) {
+				return ResponseEntity.badRequest()
+						.body("A quantidade do produto deve ser maior que zero");
+			}
+
+			Produto produto = produtoRepository
+					.findById(item.getProduto().getId())
+					.orElse(null);
+
+			if (produto == null) {
+				return ResponseEntity.badRequest()
+						.body("Produto não encontrado");
+			}
+
+			Estoque estoque = estoqueRepository.findAll().stream()
+					.filter(e -> e.getProduto().getId().equals(produto.getId()))
+					.filter(e -> e.getUnidade().getId().equals(unidade.getId()))
+					.findFirst()
+					.orElse(null);
+
+			if (estoque == null) {
+				return ResponseEntity.badRequest()
+						.body("Estoque não encontrado para este produto e unidade");
+			}
+
+			if (estoque.getQuantidade() < item.getQuantidade()) {
+				return ResponseEntity.badRequest()
+						.body("Estoque insuficiente para o produto: " + produto.getNome());
+			}
+
+			item.setProduto(produto);
+			item.setPrecoUnitario(produto.getPrecoBase());
+
+			double subtotal = item.getQuantidade() * produto.getPrecoBase();
+
+			item.setSubtotal(subtotal);
+			valorTotal += subtotal;
+
+			estoque.setQuantidade(
+					estoque.getQuantidade() - item.getQuantidade());
+
+			estoquesAlterados.add(estoque);
+		}
+
+		for (Estoque estoque : estoquesAlterados) {
+			estoqueRepository.save(estoque);
+		}
+
+		venda.setValorTotal(valorTotal);
+		venda.setDataVenda(LocalDateTime.now());
+
+		return ResponseEntity.ok(vendaRepository.save(venda));
+	}
 }

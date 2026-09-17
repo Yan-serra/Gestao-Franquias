@@ -21,8 +21,8 @@ public class UnidadeFranqueada {
 	private String estado;
 	private String endereco;
 	private String telefone;
-	private LocalDate dateInicio;
-	private boolean Ativa;
+	private LocalDate dataInicio;
+	private boolean ativa;
 
 	@ManyToOne
 	private Franqueadora franqueadora;
@@ -35,7 +35,7 @@ public class UnidadeFranqueada {
 		return id;
 	}
 	
-	public void setid(Long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -88,22 +88,22 @@ public class UnidadeFranqueada {
 	}
 
 	public LocalDate getDataInicio() {
-		return dateInicio;
+		return dataInicio;
 	}
 
 	public void setDataInicio(LocalDate dataInicio) {
-		this.dateInicio = dataInicio;
+		this.dataInicio = dataInicio;
 	}
 
 	public boolean isAtiva() {
-		return Ativa;
+		return ativa;
 	}
 
-	public void setAtiva(boolean Ativa) {
-		this.Ativa = Ativa;
+	public void setAtiva(boolean ativa) {
+		this.ativa = ativa;
 	}
 	
-	public  Franqueadora getFranqueadora(){
+	public Franqueadora getFranqueadora(){
 		return franqueadora;
 	}
 	
