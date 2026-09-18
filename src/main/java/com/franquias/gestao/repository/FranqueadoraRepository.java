@@ -6,5 +6,7 @@ import com.franquias.gestao.model.Franqueadora;
 
 public interface FranqueadoraRepository extends JpaRepository<Franqueadora, Long> {
 
-	// Usa os métodos padrão do JpaRepository
+	// Verifica se já existe uma franqueadora com o mesmo CNPJ
+	boolean existsByCnpj(String cnpj);
+
 }
