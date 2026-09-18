@@ -108,6 +108,13 @@ public class UnidadeFranqueadaController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unidade não encontrada");
 		}
 
+		// Verifica se o CNPJ pertence a outra unidade
+		UnidadeFranqueada unidadeComMesmoCnpj = unidadeRepository.findByCnpj(dados.getCnpj()).orElse(null);
+
+		if (unidadeComMesmoCnpj != null && !unidadeComMesmoCnpj.getId().equals(id)) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("Já existe uma unidade com esse CNPJ");
+		}
+
 		unidade.setNome(dados.getNome());
 		unidade.setCnpj(dados.getCnpj());
 		unidade.setCidade(dados.getCidade());
