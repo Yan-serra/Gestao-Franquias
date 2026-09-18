@@ -1,15 +1,15 @@
-````text
 # GESTÃO DE FRANQUIAS
 
 ## DESCRIÇÃO
 
-Este projeto acadêmico foi desenvolvido em Java com Spring Boot para a criação de uma API REST voltada ao gerenciamento de franquias. A aplicação permite cadastrar, consultar, 
-atualizar e excluir informações relacionadas a franqueadoras, unidades franqueadas, usuários, perfis, categorias e produtos.
-O sistema utiliza PostgreSQL como banco de dados e Spring Security com JWT para realizar a autenticação dos usuários e proteger os endpoints da aplicação.
+Este projeto acadêmico foi desenvolvido em Java com Spring Boot para a criação de uma API REST voltada ao gerenciamento de franquias. A aplicação permite administrar franqueadoras, 
+unidades franqueadas, usuários, perfis, responsáveis, categorias, produtos, fornecedores, estoque, vendas, royalties e chamados de suporte.
+O sistema utiliza PostgreSQL como banco de dados e Spring Security com JWT para autenticação e proteção dos endpoints.
 
 ## OBJETIVO
 
-Desenvolver uma aplicação back-end para o gerenciamento de franquias, aplicando conceitos de API REST, banco de dados, operações CRUD, validações, autenticação e segurança.
+Desenvolver uma aplicação back-end para gerenciamento de franquias, aplicando conceitos de API REST, banco de dados relacional, operações CRUD, validações, 
+regras de negócio, autenticação, autorização e segurança.
 
 ## TECNOLOGIAS UTILIZADAS
 
@@ -29,8 +29,7 @@ Desenvolver uma aplicação back-end para o gerenciamento de franquias, aplicand
 ## ESTRUTURA DO PROJETO
 
 ```text
-Gestao-Franquias/
-
+gestao_franquias/
 ├── src/
 │   ├── main/
 │   │   ├── java/
@@ -43,60 +42,90 @@ Gestao-Franquias/
 │   │   └── resources/
 │   │       └── application.properties
 │   └── test/
+├── database/
+│   ├── database.sql
+│   └── dados-exemplo.sql
+├── postman/
 ├── pom.xml
 └── README.md
 ```
 
 ## FUNCIONALIDADES
 
-==> Cadastro, consulta, atualização e exclusão de registros.
 ==> Gerenciamento de franqueadoras.
 ==> Gerenciamento de unidades franqueadas.
 ==> Gerenciamento de usuários e perfis.
+==> Cadastro de responsáveis pelas unidades.
 ==> Gerenciamento de categorias e produtos.
+==> Gerenciamento de fornecedores.
+==> Controle de estoque.
+==> Entrada e saída de estoque.
+==> Registro de vendas e itens.
+==> Cálculo do valor das vendas.
+==> Controle e cálculo de royalties.
+==> Gerenciamento de chamados de suporte.
+==> Consultas e indicadores.
 ==> Validação de CNPJ duplicado.
 ==> Validação de e-mail duplicado.
-==> Ativação e inativação de usuários.
-==> Autenticação com JWT.
+==> Ativação e inativação.
+==> Impedimento de estoque negativo.
+==> Bloqueio de venda em unidade inativa.
+==> Autenticação utilizando JWT.
 ==> Proteção de endpoints.
-==> Controle de acesso por perfil.
+==> Controle de acesso de acordo com o perfil do usuário.
 
 ## BANCO DE DADOS
 
-O projeto utiliza PostgreSQL como banco de dados.
+O projeto utiliza PostgreSQL.
 
 O banco utilizado pela aplicação é:
 
 ```text
-franquias-DB
+Franquias-DB
 ```
 
-A conexão com o banco é configurada no arquivo:
+A configuração está localizada em:
 
 ```text
 src/main/resources/application.properties
 ```
 
-Exemplo de configuração:
+Configuração utilizada:
 
 ```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/franquias-DB
+spring.datasource.url=jdbc:postgresql://localhost:5432/Franquias-DB
 spring.datasource.username=postgres
-spring.datasource.password=SUA_SENHA
+spring.datasource.password=${DB_PASSWORD}
+```
+
+A senha do PostgreSQL não fica armazenada diretamente no projeto.
+
+Ela deve ser configurada através da variável de ambiente:
+
+```text
+DB_PASSWORD
 ```
 
 ## AUTENTICAÇÃO
 
-A aplicação utiliza Spring Security com JWT para realizar a autenticação dos usuários, trazendo mais segurança e confiança,
- tanto para o cliente quanto o usuario que for utilizar esse sistema.
+A aplicação utiliza Spring Security com JWT.
 
-O login é realizado pelo endpoint:
+O login é realizado através de:
 
 ```http
 POST /auth/login
 ```
 
-Após o login, o sistema gera um token JWT que deve ser enviado nas requisições protegidas:
+Exemplo:
+
+```json
+{
+    "email": "usuario@email.com",
+    "senha": "senha"
+}
+```
+
+Após o login, o token deve ser utilizado nas requisições protegidas:
 
 ```text
 Authorization: Bearer TOKEN_JWT
@@ -104,18 +133,18 @@ Authorization: Bearer TOKEN_JWT
 
 ## PERFIS DE ACESSO
 
-Entre os perfis utilizados no sistema estão:
+Os principais perfis utilizados são:
 
 ```text
 ADMIN
 GERENTE
 ```
 
-O acesso a determinados endpoints depende do perfil do usuário autenticado.
+O perfil ADMIN possui acesso às operações administrativas de usuários e perfis. ADMIN e GERENTE podem acessar os principais módulos operacionais da aplicação.
 
 ## SWAGGER
 
-Com a aplicação em execução, a documentação da API pode ser acessada pelo endereço:
+Com a aplicação em execução, a documentação da API pode ser acessada em:
 
 ```text
 http://localhost:8080/swagger-ui/index.html
@@ -123,7 +152,7 @@ http://localhost:8080/swagger-ui/index.html
 
 ## TESTES
 
-Os endpoints da aplicação foram testados utilizando o Postman.
+Os endpoints foram testados utilizando Postman.
 
 Foram realizados testes de:
 
@@ -132,22 +161,34 @@ Foram realizados testes de:
 ==> GET por ID
 ==> PUT
 ==> DELETE
-==> Validações
-==> Autenticação
-==> Geração e utilização do token JWT
-==> Endpoints protegidos
+==> autenticação
+==> geração de JWT
+==> acesso autorizado
+==> acesso negado
+==> validação de CNPJ
+==> validação de e-mail
+==> unidade ativa e inativa
+==> estoque
+==> vendas
+==> royalties
+==> chamados
+==> consultas e relatórios
 
-````text
+A Collection utilizada nos testes está disponível na pasta:
+
+```text
+postman/
+```
 
 ## INSTALAÇÃO
 
-Para executar o projeto em outra máquina, primeiro clone o repositório:
+Clone o repositório:
 
 ```bash
 git clone https://github.com/Yan-serra/Gestao-Franquias
-````
+```
 
-Depois, importe o projeto no Eclipse utilizando a opção:
+No Eclipse:
 
 ```text
 File
@@ -157,49 +198,65 @@ Import
 Existing Maven Projects
 ```
 
-Selecione a pasta do projeto e finalize a importação.
+Selecione a pasta do projeto e conclua a importação.
 
-Antes de executar a aplicação, é necessário possuir o PostgreSQL instalado e criar o banco de dados:
+É necessário possuir PostgreSQL instalado.
 
-```text
-franquias-DB
-```
-
-Depois, configure o usuário e a senha do PostgreSQL no arquivo:
+Crie o banco:
 
 ```text
-src/main/resources/application.properties
+Franquias-DB
 ```
 
-```
+Os scripts SQL utilizados para criação e dados de exemplo estão disponíveis na pasta:
+
+```text
+database/
 ```
 
+Configure no Eclipse a variável de ambiente:
+
+```text
+DB_PASSWORD
+```
+
+com a senha do PostgreSQL utilizado na máquina.
 
 ## EXECUÇÃO DO PROJETO
 
-No Eclipse, localize a classe principal da aplicação.
+No Eclipse, localize:
+
+```text
+GestaoFranquiasApplication.java
+```
 
 Depois:
 
 ```text
-Botão direito na classe principal
-        ↓
+Botão direito
+↓
 Run As
-        ↓
+↓
 Spring Boot App
 ```
 
-Com a aplicação iniciada corretamente, ela ficará disponível normalmente em:
+A aplicação ficará disponível em:
 
 ```text
 http://localhost:8080
+```
+
+Swagger:
+
+```text
+http://localhost:8080/swagger-ui/index.html
 ```
 
 ## VERSIONAMENTO
 
 O projeto utiliza Git e GitHub para controle de versão.
 
-Durante o desenvolvimento, foram realizados commits para registrar as principais etapas e alterações do projeto.
+Foram realizados commits durante o desenvolvimento para registrar as principais etapas e alterações realizadas.
 
 ## AUTOR
 
@@ -208,4 +265,3 @@ Yan Kevin dos Santos Serra
 ## LICENÇA
 
 Projeto desenvolvido exclusivamente para fins acadêmicos.
-````
